@@ -3,7 +3,7 @@ WD='/home/despoB/connectome-data'
 SCRIPTS='/home/despoB/kaihwang/bin/HCP-processing'
 Tha_folder='/home/despoB/connectome-thalamus/connectome'
 
-for s in 996782; do
+for s in 351938 116120 126931 131621 129432 143527 179548 129533 197449 113821 207628 142424 145531 355542 173132 112819 121315 101410 169141 208428 170934 128329 650746 611231 745555 782157 521331 197651 165234 150524 355239 473952 155231 571548 644044 107220 116221 121820 129937 150019 159845 160931 168038 173233 177342 179952 190132 193441 200210 201717 221218 492754 584355 613235 693461 734247 766563 810439 856463 972566 953764; do
 
 	if [ ! -d ${WD}/${s}/ ]; then
 		mkdir ${WD}/${s}/		
@@ -61,6 +61,7 @@ for s in 996782; do
 		
 		if [ ! -e ${WD}/${s}/${data}/${data}_reg.nii.gz ]; then
 
+			rm ${WD}/${s}/${data}/${data}_reg.nii.gz
 			# extract tissue regressors
 			3dmaskave -mask ${WD}/${s}/CSF_mask_ds_erode1x.nii.gz -quiet ${WD}/${s}/${data}/${data}.nii.gz > ${WD}/${s}/${data}/${data}_csf.1D
 			3dmaskave -mask ${WD}/${s}/WM_mask_ds_erode1x.nii.gz -quiet ${WD}/${s}/${data}/${data}.nii.gz > ${WD}/${s}/${data}/${data}_WM.1D
@@ -92,10 +93,13 @@ for s in 996782; do
 		fi
 
 		if [ ! -e ${WD}/${s}/${data}/${data}_hp2000_clean.nii.gz ]; then
+			rm ${WD}/${s}/${data}/${data}_hp2000_clean.nii.gz
 			ln -s ${SOURCE}/${s}/MNINonLinear/Results/${data}/${data}_hp2000_clean.nii.gz ${WD}/${s}/${data}/${data}_hp2000_clean.nii.gz
 		fi
 
 		if [ ! -e ${WD}/${s}/${data}/${data}_hp2000_clean_wbsreg.nii.gz ]; then
+			
+			rm ${WD}/${s}/${data}/${data}_hp2000_clean_wbsreg.nii.gz
 			3dmaskave -mask ${WD}/${s}/brainmask_ds.nii.gz -quiet \
 			${WD}/${s}/${data}/${data}_hp2000_clean.nii.gz > ${WD}/${s}/${data}_WBS.1D
 			
