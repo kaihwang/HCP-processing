@@ -81,25 +81,27 @@ for s in 100307; do
 			ln -s ${SOURCE}/${s}/MNINonLinear/Results/${data}/Movement_Regressors_dt.txt ${WD}/${s}/${data}/${data}_motion.1D
 	
 			#do regression
+			#rm ${WD}/${s}/${data}/${data}_MACreg.nii.gz
+			## did mac do filter for task?
 			3dTproject \
 			-input ${WD}/${s}/${data}/${data}.nii.gz \
 			-prefix ${WD}/${s}/${data}/${data}_MACreg.nii.gz \
 			-ort ${WD}/${s}/${data}/CSF_PC_vec.1D \
 			-ort ${WD}/${s}/${data}/WM_PC_vec.1D \
 			-ort ${WD}/${s}/${data}/${data}_motion.1D \
-			-automask \
-			-passband 0.0071 0.125
+			-automask 
+			#-passband 0.009 0.08
 
 		fi
 		
-		#Thalamus_Morel_consolidated_mask_v3
-		for roi in bnm_lc; do 
+		#Thalamus_Morel_consolidated_mask_v3 Morel_plus_Yeo400 bnm_lc
+		for roi in Morel_plus_Yeo400; do 
 			3dNetCorr \
 			-inset ${WD}/${s}/${data}/${data}_MACreg.nii.gz \
 			-in_rois /home/despoB/kaihwang/Rest/ROIs/${roi}.nii.gz \
 			-ts_out \
-			-ts_label \
-			-prefix /home/despoB/kaihwang/bin/HCP-processing/Data/TS/${s}_${data}_${roi}
+			-prefix /home/despoB/kaihwang/Rest/ThaGate/NotBackedUp/${s}_${roi}_${data}
+			# need to change path here, ts output
 		done
 		
 		rm ${WD}/${s}/${data}/${data}_MACreg.nii.gz
@@ -142,18 +144,18 @@ for s in 100307; do
 			-ort ${WD}/${s}/${data}/CSF_PC_vec.1D \
 			-ort ${WD}/${s}/${data}/WM_PC_vec.1D \
 			-ort ${WD}/${s}/${data}/${data}_motion.1D \
-			-passband 0.0071 0.125 \
+			-passband 0.009 0.08 \
 			-automask
+
 		fi
 		
-		#Thalamus_Morel_consolidated_mask_v3
-		for roi in bnm_lc; do 
+		#Thalamus_Morel_consolidated_mask_v3 bnm_lc
+		for roi in Morel_plus_Yeo400; do 
 			3dNetCorr \
 			-inset ${WD}/${s}/${data}/${data}_MACreg.nii.gz \
 			-in_rois /home/despoB/kaihwang/Rest/ROIs/${roi}.nii.gz \
 			-ts_out \
-			-ts_label \
-			-prefix /home/despoB/kaihwang/bin/HCP-processing/Data/TS/${s}_${data}_${roi}
+			-prefix /home/despoB/kaihwang/Rest/ThaGate/NotBackedUp/${s}_${roi}_${data}
 		done	
 		
 		rm ${WD}/${s}/${data}/${data}_MACreg.nii.gz
