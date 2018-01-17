@@ -52,7 +52,7 @@ for s in 100307; do
 
 
 	## do task data
-	for data in tfMRI_MOTOR_LR tfMRI_MOTOR_RL tfMRI_WM_LR tfMRI_WM_RL; do
+	for data in tfMRI_MOTOR_LR tfMRI_MOTOR_RL tfMRI_WM_LR tfMRI_WM_RL tfMRI_EMOTION_LR tfMRI_EMOTION_RL tfMRI_GAMBLING_LR tfMRI_GAMBLING_RL tfMRI_LANGUAGE_LR tfMRI_LANGUAGE_RL tfMRI_MOTOR_LR tfMRI_MOTOR_RL tfMRI_RELATIONAL_LR tfMRI_RELATIONAL_RL tfMRI_SOCIAL_LR tfMRI_SOCIAL_RL; do
 	
 		if [ ! -d ${WD}/${s}/${data} ]; then
 			mkdir ${WD}/${s}/${data}		
@@ -79,7 +79,11 @@ for s in 100307; do
 
 			rm ${WD}/${s}/${data}/${data}_motion.1D
 			ln -s ${SOURCE}/${s}/MNINonLinear/Results/${data}/Movement_Regressors_dt.txt ${WD}/${s}/${data}/${data}_motion.1D
-	
+			
+			#do surrond tissue
+			3dpc -vmean -mask /home/despoB/kaihwang/Rest/ROIs/Thalamus_surround_cortical_mask.nii.gz -pcsave 3 \
+			-prefix ${WD}/${s}/${data}/ST_PC ${WD}/${s}/${data}/${data}.nii.gz
+			
 			#do regression
 			#rm ${WD}/${s}/${data}/${data}_MACreg.nii.gz
 			## did mac do filter for task?
@@ -89,18 +93,21 @@ for s in 100307; do
 			-ort ${WD}/${s}/${data}/CSF_PC_vec.1D \
 			-ort ${WD}/${s}/${data}/WM_PC_vec.1D \
 			-ort ${WD}/${s}/${data}/${data}_motion.1D \
+			-ort ${WD}/${s}/${data}/ST_PC_vec.1D \
 			-automask 
 			#-passband 0.009 0.08
 
 		fi
 		
 		#Thalamus_Morel_consolidated_mask_v3 Morel_plus_Yeo400 bnm_lc
-		for roi in Morel_plus_Yeo400; do 
-			3dNetCorr \
-			-inset ${WD}/${s}/${data}/${data}_MACreg.nii.gz \
-			-in_rois /home/despoB/kaihwang/Rest/ROIs/${roi}.nii.gz \
-			-ts_out \
-			-prefix /home/despoB/kaihwang/Rest/ThaGate/NotBackedUp/${s}_${roi}_${data}
+		for roi in Thalamus_Morel_consolidated_mask_v3 Pu Ca NAC GPi GPe; do   #Morel_plus_Yeo400
+			
+			3dROIstats -nobriklab -mask_f2short -mask /home/despoB/kaihwang/Rest/ROIs/${roi}.nii.gz ${WD}/${s}/${data}/${data}_MACreg.nii.gz > /home/despoB/kaihwang/Rest/ThaGate/forMac/${s}_${roi}_${data}
+			#3dNetCorr \
+			#-inset ${WD}/${s}/${data}/${data}_MACreg.nii.gz \
+			#-in_rois /home/despoB/kaihwang/Rest/ROIs/${roi}.nii.gz \
+			#-ts_out \
+			#-prefix /home/despoB/kaihwang/Rest/ThaGate/NotBackedUp/${s}_${roi}_${data}
 			# need to change path here, ts output
 		done
 		
@@ -137,6 +144,8 @@ for s in 100307; do
 				3dpc -vmean -mask ${WD}/${s}/WM_mask_ds_erode1x.nii.gz -pcsave 5 -prefix ${WD}/${s}/${data}/WM_PC ${WD}/${s}/${data}/${data}.nii.gz
 			fi
 			
+			3dpc -vmean -mask /home/despoB/kaihwang/Rest/ROIs/Thalamus_surround_cortical_mask.nii.gz -pcsave 3 \
+			-prefix ${WD}/${s}/${data}/ST_PC ${WD}/${s}/${data}/${data}.nii.gz
 
 			3dTproject \
 			-input ${WD}/${s}/${data}/${data}.nii.gz \
@@ -144,18 +153,21 @@ for s in 100307; do
 			-ort ${WD}/${s}/${data}/CSF_PC_vec.1D \
 			-ort ${WD}/${s}/${data}/WM_PC_vec.1D \
 			-ort ${WD}/${s}/${data}/${data}_motion.1D \
+			-ort ${WD}/${s}/${data}/ST_PC_vec.1D \
 			-passband 0.009 0.08 \
 			-automask
 
 		fi
 		
 		#Thalamus_Morel_consolidated_mask_v3 bnm_lc
-		for roi in Morel_plus_Yeo400; do 
-			3dNetCorr \
-			-inset ${WD}/${s}/${data}/${data}_MACreg.nii.gz \
-			-in_rois /home/despoB/kaihwang/Rest/ROIs/${roi}.nii.gz \
-			-ts_out \
-			-prefix /home/despoB/kaihwang/Rest/ThaGate/NotBackedUp/${s}_${roi}_${data}
+		for roi in Thalamus_Morel_consolidated_mask_v3 Pu Ca NAC GPi GPe; do 
+			
+			3dROIstats -nobriklab -mask_f2short -mask /home/despoB/kaihwang/Rest/ROIs/${roi}.nii.gz ${WD}/${s}/${data}/${data}_MACreg.nii.gz > /home/despoB/kaihwang/Rest/ThaGate/forMac/${s}_${roi}_${data}
+			# 3dNetCorr \
+			# -inset ${WD}/${s}/${data}/${data}_MACreg.nii.gz \
+			# -in_rois /home/despoB/kaihwang/Rest/ROIs/${roi}.nii.gz \
+			# -ts_out \
+			# -prefix /home/despoB/kaihwang/Rest/ThaGate/NotBackedUp/${s}_${roi}_${data}
 		done	
 		
 		rm ${WD}/${s}/${data}/${data}_MACreg.nii.gz
